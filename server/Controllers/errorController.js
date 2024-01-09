@@ -8,6 +8,8 @@ const devErrors = (res, error) => {
     error: error,
   });
 };
+
+
 const prodErrors = (res, error) => {
   if (error.isOperational) {
     res.status(error.statusCode).json({
@@ -21,22 +23,13 @@ const prodErrors = (res, error) => {
     });
   }
 };
-const castError = (error) => {
-  const msg = `Invalid value for ${error.path} :${error.value} !`;
-  return new CustomError(msg, 400);
-};
-const duplicateKeyErrorHandler = (err) => {
-    
-  const key = Object.keys(err.keyValue).join(" & ");
-  const msg = `${key} already exist`;
-  return new CustomError(msg, 400);
-};
+
+
 const validationError = (err) => {
-  const errors = Object.values(err.errors).map((val) => val.message);
-  const errorMessages = errors.join(". ");
-  const msg = `Invalid input data ${errorMessages}`;
-  return new CustomError(msg, 400);
+  const errorMessage = err.message;
+  return new CustomError(errorMessage, 400);
 };
+
 
 module.exports = (error, req, res, next) => {
   error.statusCode = error.statusCode || 500;
@@ -44,9 +37,8 @@ module.exports = (error, req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     devErrors(res, error);
   } else if (process.env.NODE_ENV === "production") {
-    if (error.name === "CastError") error = castError(error);
-    if (error.code === 11000) error = duplicateKeyErrorHandler(error);
-    if (error.name === "ValidationError") error = validationError(error);
+    if (error.code === "22P02" || error.code === "22007")
+      error = validationError(error);
     prodErrors(res, error);
   }
 };
