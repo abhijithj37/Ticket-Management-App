@@ -4,15 +4,43 @@ import { FiClock } from "react-icons/fi";
 import { FiCheckCircle } from "react-icons/fi";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { SlOptions } from "react-icons/sl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddTickets from "../Components/AddTickets";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchTickets,
+  fetchTicketsCount,
+  getTicketsCount,
+  selectAll,
+} from "../features/tickets/ticketsSlice";
+import useLocalStorage from "../hooks/useLocalStorage";
+import ReactPaginate from 'react-paginate'
+import { Toaster } from "sonner";
 
 
 const Home = () => {
-  const [data, setData] = useState([1, 2,3,4,5]);
+  const [page, setPage] = useLocalStorage("page", 1);
+  const [limit, setLimit] = useLocalStorage("limit", 5);
+  const ticketsCount = useSelector(getTicketsCount);
+  const pageCount = Math.ceil(ticketsCount / limit);
+  const tickets = useSelector(selectAll);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchTickets({ page, limit }));
+  },[page,limit,ticketsCount]);
+
+  useEffect(()=>{
+  dispatch(fetchTicketsCount())
+  },[])
+
+  const handlePageClick = (e) => {
+  setPage(e.selected + 1);
+  };
 
   return (
     <>
+    <Toaster richColors position="top-center"/>
       <NavBar />
       <main className="px-4 py-4 bg-gray-100 min-h-screen md:px-6">
         {/* ...... */}
@@ -82,7 +110,7 @@ const Home = () => {
           {/* head */}
           <div className="flex justify-between items-center">
             <p className="font-medium text-sm">Manage Tickets</p>
-            <AddTickets/>
+            <AddTickets />
           </div>
           {/* head-- */}
           {/* search */}
@@ -100,7 +128,7 @@ const Home = () => {
           {/* search ---*/}
 
           {/* Table */}
-          <div class="overflow-auto hidden md:block mt-6">
+          <div class="overflow-auto hidden md:block mt-6 min-h-80">
             <table class="w-full border border-collapse">
               <thead class="bg-sky-50 text-center">
                 <tr>
@@ -135,44 +163,44 @@ const Home = () => {
               </thead>
               <tbody class="divide-y divide-gray-100">
                 {/* row */}
-                {data.map(() => {
+                {tickets?.map((e) => {
                   return (
-                    <tr class="bg-white text-center">
+                    <tr key={e.id} class="bg-white text-center">
                       <td class="p-3 text-sm text-gray-500 whitespace-nowrap border border-collapse">
                         <a
                           href="#"
                           class="font-bold text-blue-500 hover:underline"
                         >
-                          #1
+                          #{e.id}
                         </a>
                       </td>
                       <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse">
-                        Abhijith J
+                        {e.requested_by}
                       </td>
                       <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse ">
-                        New Submission on your website
+                        {e.subject}
                       </td>
                       <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse">
-                        Anirudh P
+                        {e.assignee}
                       </td>
                       <td class=" text-xs text-gray-700 whitespace-nowrap border border-collapse">
-                        <span class="px-1.5 py-0.5 text-xs font-medium tracking-wide text-orange-500 bg-yellow-200 rounded-md bg-opacity-50">
-                          Medium
+                        <span class={`px-1.5 py-0.5 text-xs font-medium tracking-wide ${e.priority==='Medium'?'text-orange-500 bg-yellow-200':e.priority==='Low'?'text-gray-500 bg-gray-200':'text-red-500 bg-red-200'} rounded-md bg-opacity-50`}>
+                          {e.priority}
                         </span>
                       </td>
                       <td class=" text-xs text-gray-700 whitespace-nowrap border border-collapse">
                         <span class="px-1.5 py-0.5 text-xs font-medium  tracking-wide text-white bg-emerald-500 rounded-md ">
-                          Open
+                          {e.status}
                         </span>
                       </td>
                       <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse">
-                        2014-04-28
+                        {new Date(e.created_date).toLocaleDateString('en-GB')}
                       </td>
                       <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse">
-                        2014-04-28
+                        {new Date(e.due_date).toLocaleDateString('en-GB')}
                       </td>
                       <td class=" text-sm tracking-wider text-gray-700 whitespace-nowrap border border-collapse">
-                        <div className="text-lg font-medium">...</div>
+                        <div className="text-lg font-medium cursor-pointer hover:text-xs">...</div>
                       </td>
                     </tr>
                   );
@@ -181,16 +209,20 @@ const Home = () => {
                 {/* row */}
               </tbody>
             </table>
+            {!tickets.length?<p className="text-gray-400 text-center mt-16">No tickets to display !</p>:<></>}
           </div>
-
+           
           {/* Table ON sm */}
+          {!tickets.length?<p className="text-gray-400 text-center mt-16 md:hidden">No tickets to display !</p>:<></>}
+          <div class="grid grid-cols-1 sm:grid-cols-2 mt-6 gap-4 md:hidden min-h-72">
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 mt-6 gap-4 md:hidden">
             {/* grid-table */}
-
-            {data.map(() => {
+            {tickets.map((e) => {
               return (
-                <div class="bg-white space-y-3 p-4 rounded-lg shadow">
+                <div
+                  key={e.id}
+                  class="bg-white space-y-3 p-4 rounded-lg shadow"
+                >
                   <div className="flex items-center justify-between">
                     <div class="flex items-center space-x-2 text-sm">
                       <div>
@@ -198,36 +230,36 @@ const Home = () => {
                           href="#"
                           class="text-blue-500 font-bold hover:underline"
                         >
-                          #10
+                          #{e.id}
                         </a>
                       </div>
-                      <div class="text-gray-500">10/10/2021</div>
+                      <div class="text-gray-500">{e.created_date}</div>
                       <div>
                         <span class="px-1.5 py-0.5 text-xs font-medium tracking-wide text-white bg-emerald-500 rounded-md ">
-                          Open
+                          {e.status}
                         </span>
                       </div>
                     </div>
                     <SlOptions />
                   </div>
                   <div class="text-sm text-gray-700 font-medium">
-                    New submission on your website
+                    {e.subject}
                   </div>
                   <div class="text-sm text-gray-400">
-                    Requested By: <span className="text-gray-700">Abhi</span>
+                    Requested By: <span className="text-gray-700">{e.requested_by}</span>
                   </div>
                   <div class="text-sm text-gray-400">
-                    Assigned To: <span className="text-gray-700">Abhijith</span>
+                    Assigned To: <span className="text-gray-700">{e.assignee}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <p className="text-sm font-medium text-gray-700">
-                      11-10-2023 <span className="text-gray-400">(Due)</span>{" "}
+                      {e.due_date}<span className="text-gray-400">(Due)</span>{" "}
                     </p>
                     <p className="text-sm text-gray-400">
                       {" "}
                       Priority:{" "}
                       <span class="px-1.5 py-0.5 text-xs font-medium tracking-wide text-orange-500 bg-yellow-200 rounded-md bg-opacity-50">
-                        Medium
+                        {e.priority}
                       </span>
                     </p>
                   </div>
@@ -241,21 +273,43 @@ const Home = () => {
           {/* Table on SM----- */}
 
           {/* Pagination */}
-          <div className="flex justify-between items-center mt-5">
+    {tickets.length?  <div className="flex justify-between items-center mt-5">
             <div className="flex gap-4 text-xs text-gray-500 items-center">
               <span>
                 <label htmlFor="">Display : </label>
-                <select name="" className="outline-none w-14 border p-1" id="">
-                  <option value="">10</option>
-                  <option value="">10</option>
+                <select name="" className="outline-none w-14 border p-1" id="" value={limit} onChange={(e)=>setLimit(e.target.value)}>
+                <option value={5}>5  </option>
+               <option value={8}>8  </option>
+               <option value={12}>12  </option>
+                <option value={15}>15  </option>
                 </select>
               </span>
               <p>
-                Page <span className="font-medium">1 of 2</span>
+                Page <span className="font-medium">{page} of {pageCount}</span>
               </p>
             </div>
-            <div>Pagination</div>
-          </div>
+            <div>
+              {/* Pagination ui */}
+              <ReactPaginate
+                previousLabel={"<"}
+                nextLabel={">"}
+                breakLabel={"..."}
+                pageCount={pageCount}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={3}
+                onPageChange={handlePageClick}
+                containerClassName="flex gap-2"
+                pageClassName="rounded-full text-violet-500  w-6 text-center  h-6 flex item-center justify-center hover:bg-violet-500 hover:text-white"
+                pageLinkClassName="text-sm text-center"
+                previousClassName="text-sm text-gray-400"
+                nextClassName="text-sm text-gray-400"
+                breakLinkClassName="text-gray-400"
+                activeClassName="bg-violet-500"
+                activeLinkClassName="text-white"
+                forcePage={page - 1}
+              />
+            </div>
+          </div>:<></>}
 
           {/* Pagination--- */}
         </div>

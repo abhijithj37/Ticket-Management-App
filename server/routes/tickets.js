@@ -6,6 +6,8 @@ router
   .route("/")
   .get(ticketController.getAllTickets)
   .post(ticketController.addTickets);
+  
+router.get('/count',ticketController.getTotalTicketsCount)
 
 router
   .route("/:ticketId")
