@@ -7,8 +7,8 @@ router
   .get(ticketController.getAllTickets)
   .post(ticketController.addTickets);
 
-router.get('/count',ticketController.getTotalTicketsCount)
-router.get('/status-count',ticketController.getStatusCount)
+router.get("/count", ticketController.getTotalTicketsCount);
+router.get("/status-count", ticketController.getStatusCount);
 
 router
   .route("/:ticketId")

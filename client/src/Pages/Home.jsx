@@ -2,8 +2,7 @@ import NavBar from "../Components/NavBar";
 import { BsTags } from "react-icons/bs";
 import { FiClock } from "react-icons/fi";
 import { FiCheckCircle } from "react-icons/fi";
-import { SlOptions } from "react-icons/sl";
-import { useEffect} from "react";
+import { useEffect, useState } from "react";
 import AddTickets from "../Components/AddTickets";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -13,12 +12,14 @@ import {
   getTicketStatus,
   getTicketsCount,
   selectAll,
+  selectFilteredTickets,
 } from "../features/tickets/ticketsSlice";
 import useLocalStorage from "../hooks/useLocalStorage";
-import ReactPaginate from 'react-paginate'
+import ReactPaginate from "react-paginate";
 import { useNavigate } from "react-router-dom";
 import { TbTicketOff } from "react-icons/tb";
-
+import TicketRow from "../Components/TicketRow";
+import TicketGrid from "../Components/TicketGrid";
 
 const Home = () => {
   const [page, setPage] = useLocalStorage("page", 1);
@@ -26,22 +27,28 @@ const Home = () => {
   const ticketsCount = useSelector(getTicketsCount);
   const pageCount = Math.ceil(ticketsCount / limit);
   const tickets = useSelector(selectAll);
-  const ticketStatus=useSelector(getTicketStatus)
+
+  const [searchVal, setSearchVal] = useState("");
+  const filteredTickets = useSelector((state) =>
+    selectFilteredTickets(state, searchVal)
+  );
+
+  const ticketStatus = useSelector(getTicketStatus);
   const dispatch = useDispatch();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchTickets({ page, limit }));
-  },[page,limit,ticketsCount]);
-  useEffect(()=>{
-  dispatch(fetchTicketsCount())
-  },[])
-  useEffect(()=>{
-  dispatch(fetchStatusCount())
-  },[ticketsCount])
-  
+  }, [page, limit, ticketsCount]);
+  useEffect(() => {
+    dispatch(fetchTicketsCount());
+  }, []);
+  useEffect(() => {
+    dispatch(fetchStatusCount());
+  }, [ticketsCount]);
+
   const handlePageClick = (e) => {
-  setPage(e.selected + 1);
+    setPage(e.selected + 1);
   };
 
   return (
@@ -79,7 +86,9 @@ const Home = () => {
               <FiClock size={20} />
             </span>
             <span className="flex flex-col gap-1 text-right">
-              <h1 className="font-medium text-lg">{ticketStatus['In Progress']??0}</h1>
+              <h1 className="font-medium text-lg">
+                {ticketStatus["In Progress"] ?? 0}
+              </h1>
               <p className="text-sm text-slate-400">Pending Tickets</p>
             </span>
           </div>
@@ -90,7 +99,9 @@ const Home = () => {
               <FiCheckCircle size={20} />
             </span>
             <span className="flex flex-col gap-1 text-right">
-              <h1 className="font-medium text-lg">{ticketStatus['Open']??0}</h1>
+              <h1 className="font-medium text-lg">
+                {ticketStatus["Open"] ?? 0}
+              </h1>
               <p className="text-sm text-slate-400">Open Tickets</p>
             </span>
           </div>
@@ -101,7 +112,9 @@ const Home = () => {
               <TbTicketOff size={20} />
             </span>
             <span className="flex flex-col gap-1 text-right">
-              <h1 className="font-medium text-lg">{ticketStatus['Closed']??0}</h1>
+              <h1 className="font-medium text-lg">
+                {ticketStatus["Closed"] ?? 0}
+              </h1>
               <p className="text-sm text-slate-400">Closed Tickets</p>
             </span>
           </div>
@@ -126,151 +139,77 @@ const Home = () => {
             <input
               type="search"
               id="search"
-              className="p-1 outline-none border rounded-md placeholder:text-sm"
-              placeholder="15 records..."
+              className="p-1 outline-none border rounded-md placeholder:text-xs"
+              placeholder={`Student, Assignee, Subject in ${tickets.length} records`}
+              onChange={(e) => setSearchVal(e.target.value)}
             />
           </div>
           {/* search ---*/}
 
           {/* Table */}
-          <div class="overflow-auto hidden md:block mt-6 min-h-80">
-            <table class="w-full border border-collapse">
-              <thead class="bg-sky-50 text-center">
+          <div className="overflow-auto hidden md:block mt-6 min-h-80">
+            <table className="w-full border border-collapse">
+              <thead className="bg-sky-50 text-center">
                 <tr>
-                  <th class=" p-3 text-sm font-semibold  border border-collapse">
+                  <th className=" p-3 text-sm font-semibold  border border-collapse">
                     ID
                   </th>
-                  <th class=" text-sm font-semibold   border border-collapse">
+                  <th className=" text-sm font-semibold   border border-collapse">
                     Requested By
                   </th>
-                  <th class=" text-sm font-semibold   border border-collapse">
+                  <th className=" text-sm font-semibold   border border-collapse">
                     Subject
                   </th>
-                  <th class=" text-sm font-semibold  border border-collapse">
+                  <th className=" text-sm font-semibold  border border-collapse">
                     Assignee
                   </th>
-                  <th class=" text-sm font-semibold     border border-collapse">
+                  <th className=" text-sm font-semibold     border border-collapse">
                     Priority
                   </th>
-                  <th class=" text-sm font-semibold     border border-collapse">
+                  <th className=" text-sm font-semibold     border border-collapse">
                     Status
                   </th>
-                  <th class=" text-sm font-semibold     border border-collapse">
+                  <th className=" text-sm font-semibold     border border-collapse">
                     Created Date
                   </th>
-                  <th class=" text-sm font-semibold     border border-collapse">
+                  <th className=" text-sm font-semibold     border border-collapse">
                     Due Date
                   </th>
-                  <th class=" text-sm font-semibold     border border-collapse">
+                  <th className=" text-sm font-semibold     border border-collapse">
                     Action
                   </th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100">
                 {/* row */}
-                {tickets?.map((e) => {
-                  return (
-                    <tr key={e.id} class="bg-white text-center">
-                      <td class="p-3 text-sm text-gray-500 whitespace-nowrap border border-collapse">
-                        <a
-                          href="#"
-                          class="font-bold text-blue-500 hover:underline"
-                        >
-                          #{e.id}
-                        </a>
-                      </td>
-                      <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse">
-                        {e.requested_by}
-                      </td>
-                      <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse ">
-                        {e.subject}
-                      </td>
-                      <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse">
-                        {e.assignee}
-                      </td>
-                      <td class=" text-xs text-gray-700 whitespace-nowrap border border-collapse">
-                        <span class={`px-1.5 py-0.5 text-xs font-medium tracking-wide ${e.priority==='Medium'?'text-orange-500 bg-yellow-200':e.priority==='Low'?'text-gray-500 bg-gray-200':'text-red-500 bg-red-200'} rounded-md bg-opacity-50`}>
-                          {e.priority}
-                        </span>
-                      </td>
-                      <td class=" text-xs text-gray-700 whitespace-nowrap border border-collapse">
-                        <span class={`px-1.5 py-0.5 text-xs font-medium  tracking-wide text-white ${e.status==='Open'?'bg-emerald-500':e.status==='Closed'?'bg-slate-500':'bg-blue-500'}  rounded-md`}>
-                          {e.status}
-                        </span>
-                      </td>
-                      <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse">
-                        {new Date(e.created_date).toLocaleDateString('en-GB')}
-                      </td>
-                      <td class=" text-xs text-gray-500 whitespace-nowrap border border-collapse">
-                        {new Date(e.due_date).toLocaleDateString('en-GB')}
-                      </td>
-                      <td class=" text-sm tracking-wider text-gray-700 whitespace-nowrap border border-collapse">
-                        <div className="text-lg font-medium cursor-pointer hover:text-sm" onClick={()=>navigate(`/${e.id}`)}>...</div>
- 
-                      </td>
-                    </tr>
-                  );
+                {filteredTickets?.map((ticket) => {
+                  return <TicketRow key={ticket.id} ticket={ticket} />;
                 })}
 
                 {/* row */}
               </tbody>
             </table>
-            {!tickets.length?<p className="text-gray-400 text-center mt-16">No tickets to display !</p>:<></>}
+            {!filteredTickets.length ? (
+              <p className="text-gray-400 text-center mt-16">
+                No tickets to display !
+              </p>
+            ) : (
+              <></>
+            )}
           </div>
-           
-          {/* Table ON sm */}
-          {!tickets.length?<p className="text-gray-400 text-center mt-16 md:hidden">No tickets to display !</p>:<></>}
-          <div class="grid grid-cols-1 sm:grid-cols-2 mt-6 gap-4 md:hidden min-h-72">
 
+          {/* Table ON sm */}
+          {!filteredTickets.length ? (
+            <p className="text-gray-400 text-center mt-16 md:hidden">
+              No tickets to display !
+            </p>
+          ) : (
+            <></>
+          )}
+          <div class="grid grid-cols-1 sm:grid-cols-2 mt-6 gap-4 md:hidden min-h-72">
             {/* grid-table */}
-            {tickets.map((e) => {
-              return (
-                <div
-                  key={e.id}
-                  class="bg-white space-y-3 p-4 rounded-lg shadow"
-                >
-                  <div className="flex items-center justify-between">
-                    <div class="flex items-center space-x-2 text-sm">
-                      <div>
-                        <a
-                          href="#"
-                          class="text-blue-500 font-bold hover:underline"
-                        >
-                          #{e.id}
-                        </a>
-                      </div>
-                      <div class="text-gray-500">{new Date(e.created_date).toLocaleDateString('en-GB')}</div>
-                      <div>
-                        <span class={`px-1.5 py-0.5 text-xs font-medium tracking-wide text-white ${e.status==='Open'?'bg-emerald-500':e.status==='Closed'?'bg-slate-500':'bg-blue-500'} rounded-md `}>
-                          {e.status}
-                        </span>
-                      </div>
-                    </div>
-                    <SlOptions className="text-gray-700 cursor-pointer hover:size-5" onClick={()=>navigate(`/${e.id}`)} />
-                  </div>
-                  <div class="text-sm text-gray-700 font-medium">
-                    {e.subject}
-                  </div>
-                  <div class="text-sm text-gray-400">
-                    Requested By: <span className="text-gray-700">{e.requested_by}</span>
-                  </div>
-                  <div class="text-sm text-gray-400">
-                    Assigned To: <span className="text-gray-700">{e.assignee}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm font-medium text-gray-700">
-                      {new Date(e.due_date).toLocaleDateString('en-GB')}<span className="text-gray-400">(Due)</span>{" "}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      {" "}
-                      Priority:{" "}
-                      <span class={`${e.priority==='Medium'?'text-orange-500 bg-yellow-200':e.priority==='Low'?'text-gray-500 bg-gray-200':'text-red-500 bg-red-200'} px-1.5 py-0.5 text-xs font-medium tracking-wide rounded-md bg-opacity-50`}>
-                        {e.priority}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              );
+            {filteredTickets.map((ticket) => {
+              return <TicketGrid key={ticket.id} ticket={ticket} />;
             })}
 
             {/* grid-table */}
@@ -279,43 +218,56 @@ const Home = () => {
           {/* Table on SM----- */}
 
           {/* Pagination */}
-    {tickets.length?  <div className="flex justify-between items-center mt-5">
-            <div className="flex gap-4 text-xs text-gray-500 items-center">
-              <span>
-                <label htmlFor="">Display : </label>
-                <select name="" className="outline-none w-14 border p-1" id="" value={limit} onChange={(e)=>setLimit(e.target.value)}>
-                <option value={5}>5  </option>
-               <option value={8}>8  </option>
-               <option value={12}>12  </option>
-                <option value={15}>15  </option>
-                </select>
-              </span>
-              <p>
-                Page <span className="font-medium">{page} of {pageCount}</span>
-              </p>
+          {tickets.length ? (
+            <div className="flex justify-between items-center mt-5">
+              <div className="flex gap-4 text-xs text-gray-500 items-center">
+                <span>
+                  <label htmlFor="">Display : </label>
+                  <select
+                    name=""
+                    className="outline-none w-14 border p-1"
+                    id=""
+                    value={limit}
+                    onChange={(e) => setLimit(e.target.value)}
+                  >
+                    <option value={5}>5 </option>
+                    <option value={8}>8 </option>
+                    <option value={12}>12 </option>
+                    <option value={15}>15 </option>
+                  </select>
+                </span>
+                <p>
+                  Page{" "}
+                  <span className="font-medium">
+                    {page} of {pageCount}
+                  </span>
+                </p>
+              </div>
+              <div>
+                {/* Pagination ui */}
+                <ReactPaginate
+                  previousLabel={"<"}
+                  nextLabel={">"}
+                  breakLabel={"..."}
+                  pageCount={pageCount}
+                  marginPagesDisplayed={2}
+                  pageRangeDisplayed={3}
+                  onPageChange={handlePageClick}
+                  containerClassName="flex gap-2"
+                  pageClassName="rounded-full text-violet-500  w-6 text-center  h-6 flex item-center justify-center hover:bg-violet-500 hover:text-white"
+                  pageLinkClassName="text-sm text-center"
+                  previousClassName="text-sm text-gray-400"
+                  nextClassName="text-sm text-gray-400"
+                  breakLinkClassName="text-gray-400"
+                  activeClassName="bg-violet-500"
+                  activeLinkClassName="text-white"
+                  forcePage={page - 1}
+                />
+              </div>
             </div>
-            <div>
-              {/* Pagination ui */}
-              <ReactPaginate
-                previousLabel={"<"}
-                nextLabel={">"}
-                breakLabel={"..."}
-                pageCount={pageCount}
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={3}
-                onPageChange={handlePageClick}
-                containerClassName="flex gap-2"
-                pageClassName="rounded-full text-violet-500  w-6 text-center  h-6 flex item-center justify-center hover:bg-violet-500 hover:text-white"
-                pageLinkClassName="text-sm text-center"
-                previousClassName="text-sm text-gray-400"
-                nextClassName="text-sm text-gray-400"
-                breakLinkClassName="text-gray-400"
-                activeClassName="bg-violet-500"
-                activeLinkClassName="text-white"
-                forcePage={page - 1}
-              />
-            </div>
-          </div>:<></>}
+          ) : (
+            <></>
+          )}
 
           {/* Pagination--- */}
         </div>

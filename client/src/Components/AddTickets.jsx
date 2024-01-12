@@ -8,35 +8,43 @@ import { addNewTicket } from "../features/tickets/ticketsSlice";
 
 const AddTickets = () => {
   const [open, setOpen] = useState(false);
-  const [requested_by,setRequestedBy]=useState('')
-  const [assignee,setAssignee]=useState('')
-  const [subject,setSubject]=useState('')
-  const [due_date,setDueDate]=useState('')
-  const [priority,setPriority]=useState('')
-  
-  const dispatch=useDispatch()
+  const [requested_by, setRequestedBy] = useState("");
+  const [assignee, setAssignee] = useState("");
+  const [subject, setSubject] = useState("");
+  const [due_date, setDueDate] = useState("");
+  const [priority, setPriority] = useState("");
+
+  const dispatch = useDispatch();
   const onOpenModal = () => setOpen(true);
   const onCloseModal = () => setOpen(false);
 
-  const handleDiscard=()=>{
-    setRequestedBy('')
-    setAssignee('')
-    setSubject('')
-    setDueDate('')
-    setPriority('')
-    setOpen(false)
-  }
+  const handleDiscard = () => {
+    setRequestedBy("");
+    setAssignee("");
+    setSubject("");
+    setDueDate("");
+    setPriority("");
+    setOpen(false);
+  };
 
-  const handleAddTicket=async(e)=>{
-    e.preventDefault()
-    if(!requested_by.trim() ||!assignee.trim() ||!subject.trim() ||!due_date.trim() ||!priority.trim()){
-      return toast.error('Please fill all the feilds!')
+  const handleAddTicket = async (e) => {
+    e.preventDefault();
+    if (
+      !requested_by.trim() ||
+      !assignee.trim() ||
+      !subject.trim() ||
+      !due_date.trim() ||
+      !priority.trim()
+    ) {
+      return toast.error("Please fill all the feilds!");
     }
-    await dispatch(addNewTicket({requested_by,assignee,subject,due_date,priority})).unwrap()
-    toast.success('Your ticket has been created')
-    handleDiscard()
-  }
- 
+    await dispatch(
+      addNewTicket({ requested_by, assignee, subject, due_date, priority })
+    ).unwrap();
+    toast.success("Your ticket has been created");
+    handleDiscard();
+  };
+
   return (
     <div>
       <button
@@ -66,7 +74,7 @@ const AddTickets = () => {
                   <input
                     type="text"
                     required
-                    onChange={(e)=>setRequestedBy(e.target.value)}
+                    onChange={(e) => setRequestedBy(e.target.value)}
                     placeholder="Requested By"
                     className="outline-none w-full px-3 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
@@ -78,7 +86,7 @@ const AddTickets = () => {
                   <input
                     type="text"
                     required
-                    onChange={(e)=>setAssignee(e.target.value)}
+                    onChange={(e) => setAssignee(e.target.value)}
                     placeholder="Assigned To"
                     className="outline-none w-full px-3 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
@@ -87,11 +95,11 @@ const AddTickets = () => {
               <div>
                 <div className="mt-2">
                   <select
-                  onChange={(e)=>setPriority(e.target.value)}
+                    onChange={(e) => setPriority(e.target.value)}
                     required
                     className="outline-none w-full px-3 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   >
-                    <option  value="">Select a Priority</option>
+                    <option value="">Select a Priority</option>
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
@@ -103,7 +111,7 @@ const AddTickets = () => {
                   <textarea
                     placeholder="Subject"
                     required
-                    onChange={(e)=>setSubject(e.target.value)}
+                    onChange={(e) => setSubject(e.target.value)}
                     className="outline-none w-full px-3 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -119,7 +127,7 @@ const AddTickets = () => {
                   <input
                     type="date"
                     required
-                    onChange={(e)=>setDueDate(e.target.value)}
+                    onChange={(e) => setDueDate(e.target.value)}
                     placeholder="Due Date"
                     className="outline-none w-full px-3 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
@@ -136,7 +144,10 @@ const AddTickets = () => {
               </div>
             </form>
 
-            <p onClick={handleDiscard} className="mt-5 text-center text-sm hover:underline text-gray-500">
+            <p
+              onClick={handleDiscard}
+              className="mt-5 text-center text-sm hover:underline text-gray-500"
+            >
               Cancel
             </p>
           </div>

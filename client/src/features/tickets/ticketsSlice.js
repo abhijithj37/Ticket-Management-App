@@ -2,6 +2,7 @@ import {
   createSlice,
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
 } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "sonner";
@@ -12,7 +13,7 @@ const ticketsAdapter = createEntityAdapter();
 const initialState = ticketsAdapter.getInitialState({
   totalTickets: 0,
   ticket: {},
-  ticketStatus:{}
+  ticketStatus: {},
 });
 
 export const addNewTicket = createAsyncThunk(
@@ -57,16 +58,16 @@ export const fetchTicketsCount = createAsyncThunk(
 );
 
 export const fetchStatusCount = createAsyncThunk(
-    "tickets/fetchStatusCount",
-    async () => {
-      try {
-        const response = await axios.get(`${TICKETS_URL}/status-count`);
-        return response.data;
-      } catch (error) {
-        console.log("Error fetching status count", error);
-      }
+  "tickets/fetchStatusCount",
+  async () => {
+    try {
+      const response = await axios.get(`${TICKETS_URL}/status-count`);
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching status count", error);
     }
-  );
+  }
+);
 
 export const fetchTicketById = createAsyncThunk(
   "tickets/fetchTicketById",
@@ -81,16 +82,16 @@ export const fetchTicketById = createAsyncThunk(
 );
 
 export const updaTeTicket = createAsyncThunk(
-    "tickets/updateTicket",
-    async ({ id ,status}) => {
-      try {
-        const response = await axios.patch(`${TICKETS_URL}/${id}`,{status});
-        return response.data;
-      } catch (error) {
-        console.log("Error Updating status", error);
-      }
+  "tickets/updateTicket",
+  async ({ id, status }) => {
+    try {
+      const response = await axios.patch(`${TICKETS_URL}/${id}`, { status });
+      return response.data;
+    } catch (error) {
+      console.log("Error Updating status", error);
     }
-  );
+  }
+);
 
 const ticketsSlice = createSlice({
   name: "tickets",
@@ -109,16 +110,21 @@ const ticketsSlice = createSlice({
       })
       .addCase(fetchTicketById.fulfilled, (state, action) => {
         state.ticket = action.payload[0];
-      }).addCase(updaTeTicket.fulfilled,(state,action)=>{
-        state.ticket=action.payload[0]
-        ticketsAdapter.updateOne(state,action.payload[0])
-      }).addCase(fetchStatusCount.fulfilled,(state,action)=>{
-         const ticketStatus=action.payload?.reduce((result,{status,total_tickets})=>{
-         result[status]=total_tickets
-         return result
-         },{})
-         state.ticketStatus=ticketStatus
       })
+      .addCase(updaTeTicket.fulfilled, (state, action) => {
+        state.ticket = action.payload[0];
+        ticketsAdapter.updateOne(state, action.payload[0]);
+      })
+      .addCase(fetchStatusCount.fulfilled, (state, action) => {
+        const ticketStatus = action.payload?.reduce(
+          (result, { status, total_tickets }) => {
+            result[status] = total_tickets;
+            return result;
+          },
+          {}
+        );
+        state.ticketStatus = ticketStatus;
+      });
   },
 });
 
@@ -129,5 +135,17 @@ export const { selectAll } = ticketsAdapter.getSelectors(
 export const getTicketsCount = (state) => state.tickets.totalTickets;
 export const getTicket = (state) => state.tickets.ticket;
 export const getTicketStatus = (state) => state.tickets.ticketStatus;
+export const selectFilteredTickets = createSelector(
+  [selectAll, (state, srchVal) => srchVal],
+  (tickets, srchVal) => {
+    const srchTerm = srchVal.toLowerCase();
+    return tickets.filter(
+      (t) =>
+        t.requested_by.toLowerCase().includes(srchTerm) ||
+        t.assignee.toLowerCase().includes(srchTerm) ||
+        t.subject.toLowerCase().includes(srchTerm)
+    );
+  }
+);
 
 export default ticketsSlice.reducer;

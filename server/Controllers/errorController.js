@@ -9,7 +9,6 @@ const devErrors = (res, error) => {
   });
 };
 
-
 const prodErrors = (res, error) => {
   if (error.isOperational) {
     res.status(error.statusCode).json({
@@ -24,12 +23,10 @@ const prodErrors = (res, error) => {
   }
 };
 
-
 const validationError = (err) => {
   const errorMessage = err.message;
   return new CustomError(errorMessage, 400);
 };
-
 
 module.exports = (error, req, res, next) => {
   error.statusCode = error.statusCode || 500;

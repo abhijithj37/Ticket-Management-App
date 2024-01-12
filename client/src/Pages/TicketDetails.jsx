@@ -6,22 +6,22 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTicketById, getTicket } from "../features/tickets/ticketsSlice";
 import UpdateStatusModal from "../Components/UpdateStatusModal";
- 
+
 const TicketDetails = () => {
-  const {id}=useParams()
-  const ticket=useSelector(getTicket)
-  const dispatch=useDispatch()
-  
+  const { id } = useParams();
+  const ticket = useSelector(getTicket);
+  const dispatch = useDispatch();
+
   if (!ticket) {
     return (
-        <section>
-            <h2>Ticket not found!</h2>
-        </section>
-    )
-}
-useEffect(()=>{
-dispatch(fetchTicketById({id}))
-},[])
+      <section>
+        <h2>Ticket not found!</h2>
+      </section>
+    );
+  }
+  useEffect(() => {
+    dispatch(fetchTicketById({ id }));
+  }, []);
   return (
     <>
       <NavBar />
@@ -44,15 +44,16 @@ dispatch(fetchTicketById({id}))
           <div className="p-4 bg-white mt-5 space-y-8 text-gray-600 flex-1 lg:flex-auto">
             <div className="flex justify-between items-center">
               <p className="font-semibold text-lg">#{ticket.id}</p>
-              {/* <button>do something</button> */}
-              <UpdateStatusModal currentStatus={ticket.status} ticketId={ticket.id} />
+
+              <UpdateStatusModal
+                currentStatus={ticket.status}
+                ticketId={ticket.id}
+              />
             </div>
 
             <div>
               <p className="text-sm">Ticket Title : </p>
-              <p className="mt-2 font-medium">
-                {ticket.subject}
-              </p>
+              <p className="mt-2 font-medium">{ticket.subject}</p>
             </div>
             {/* ........ */}
             <div className="flex justify-between">
@@ -73,12 +74,16 @@ dispatch(fetchTicketById({id}))
             <div className="flex justify-between">
               <div className="w-[50%]">
                 <p className="text-sm">Created On : </p>
-                <p className="font-medium">{new Date(ticket.created_date).toLocaleDateString('en-GB')}</p>
+                <p className="font-medium">
+                  {new Date(ticket.created_date).toLocaleDateString("en-GB")}
+                </p>
               </div>
               <div className="w-[50%] flex flex-row-reverse lg:flex-row text-right lg:text-left">
                 <span>
                   <p className="text-sm">Due On : </p>
-                  <p className="font-medium">{new Date(ticket.due_date).toLocaleDateString('en-GB')}</p>
+                  <p className="font-medium">
+                    {new Date(ticket.due_date).toLocaleDateString("en-GB")}
+                  </p>
                 </span>
               </div>
             </div>
@@ -165,68 +170,99 @@ dispatch(fetchTicketById({id}))
           {/* Attachments */}
         </div>
         {/* Discussions */}
-<div className='p-4 bg-white mt-5 lg:w-[75%]'>
-  <div className="flex items-center justify-between">
-  <p className='text-gray-800 font-medium'>Discussions(68)</p>
-   <select name="" id="" className="outline-none border p-1 text-gray-400">
-    <option value="">Recent</option>
-   </select>
-  </div>
-<div className='flex gap-5 flex-col mt-4'>
-  
-   
-   
-  {/* comment */}
-  <div className=' flex justify-between items-center'>
-<div className='flex gap-3'>
-  <span className='mt-1'>
-  <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt=""/>
-
-  </span>
-  <span className='space-y-2'>
-  <p className="text-sm font-medium">Jonathan Andrews</p>
-  <p className="text-gray-400 text-xs">Nice work, makes me think of the money pit.</p>
-  <p className="text-gray-400 text-xs flex items-center gap-1"><span><FaReply/></span>Replay</p>
-  </span>
-</div>
-<p className="text-xs text-gray-400 font-medium">3 hours ago</p>
-  </div>
-  {/* comment */}
-  {/* comment */}
-  <div className=' flex justify-between items-center'>
-<div className='flex gap-3'>
-  <span className='mt-1'>
-  <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt=""/>
-
-  </span>
-  <span className='space-y-2'>
-  <p className="text-sm font-medium">Jonathan Andrews</p>
-  <p className="text-gray-400 text-xs">Nice work, makes me think of the money pit.</p>
-  <p className="text-gray-400 text-xs flex items-center gap-1"><span><FaReply/></span>Replay</p>
-  </span>
-</div>
-<p className="text-xs text-gray-400 font-medium">3 hours ago</p>
-  </div>
-  {/* comment */}
-  {/* comment */}
-  <div className=' flex justify-between items-center'>
-<div className='flex gap-3'>
-  <span className='mt-1'>
-  <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt=""/>
-
-  </span>
-  <span className='space-y-2'>
-  <p className="text-sm font-medium">Jonathan Andrews</p>
-  <p className="text-gray-400 text-xs">Nice work, makes me think of the money pit.</p>
-  <p className="text-gray-400 text-xs flex items-center gap-1"><span><FaReply/></span>Replay</p>
-  </span>
-</div>
-<p className="text-xs text-gray-400 font-medium">3 hours ago</p>
-  </div>
-  {/* comment */}
-</div>
-</div>
-{/* Discussions--- */}
+        <div className="p-4 bg-white mt-5 lg:w-[75%]">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-800 font-medium">Discussions(68)</p>
+            <select
+              name=""
+              id=""
+              className="outline-none border p-1 text-gray-400"
+            >
+              <option value="">Recent</option>
+            </select>
+          </div>
+          <div className="flex gap-5 flex-col mt-4">
+            {/* comment */}
+            <div className=" flex justify-between items-center">
+              <div className="flex gap-3">
+                <span className="mt-1">
+                  <img
+                    class="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80"
+                    alt=""
+                  />
+                </span>
+                <span className="space-y-2">
+                  <p className="text-sm font-medium">Jonathan Andrews</p>
+                  <p className="text-gray-400 text-xs">
+                    Nice work, makes me think of the money pit.
+                  </p>
+                  <p className="text-gray-400 text-xs flex items-center gap-1">
+                    <span>
+                      <FaReply />
+                    </span>
+                    Replay
+                  </p>
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 font-medium">3 hours ago</p>
+            </div>
+            {/* comment */}
+            {/* comment */}
+            <div className=" flex justify-between items-center">
+              <div className="flex gap-3">
+                <span className="mt-1">
+                  <img
+                    class="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80"
+                    alt=""
+                  />
+                </span>
+                <span className="space-y-2">
+                  <p className="text-sm font-medium">Jonathan Andrews</p>
+                  <p className="text-gray-400 text-xs">
+                    Nice work, makes me think of the money pit.
+                  </p>
+                  <p className="text-gray-400 text-xs flex items-center gap-1">
+                    <span>
+                      <FaReply />
+                    </span>
+                    Replay
+                  </p>
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 font-medium">3 hours ago</p>
+            </div>
+            {/* comment */}
+            {/* comment */}
+            <div className=" flex justify-between items-center">
+              <div className="flex gap-3">
+                <span className="mt-1">
+                  <img
+                    class="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80"
+                    alt=""
+                  />
+                </span>
+                <span className="space-y-2">
+                  <p className="text-sm font-medium">Jonathan Andrews</p>
+                  <p className="text-gray-400 text-xs">
+                    Nice work, makes me think of the money pit.
+                  </p>
+                  <p className="text-gray-400 text-xs flex items-center gap-1">
+                    <span>
+                      <FaReply />
+                    </span>
+                    Replay
+                  </p>
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 font-medium">3 hours ago</p>
+            </div>
+            {/* comment */}
+          </div>
+        </div>
+        {/* Discussions--- */}
       </main>
     </>
   );
