@@ -8,7 +8,7 @@ const errorHandler = require("./Controllers/errorController");
 
 app.use(
   cors({
-    origin: true,
+    origin:"*",
     credentials: true,
   })
 );

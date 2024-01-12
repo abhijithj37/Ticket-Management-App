@@ -29,7 +29,6 @@ const AddTickets = () => {
 
   const handleAddTicket=async(e)=>{
     e.preventDefault()
-    console.log('calling here');
     if(!requested_by.trim() ||!assignee.trim() ||!subject.trim() ||!due_date.trim() ||!priority.trim()){
       return toast.error('Please fill all the feilds!')
     }

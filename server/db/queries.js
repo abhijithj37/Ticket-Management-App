@@ -4,12 +4,21 @@ const addTicket =
   "INSERT INTO tickets (requested_by, subject, due_date, assignee, priority) VALUES ($1, $2, $3, $4, $5) RETURNING *";
 const updateTicket = "UPDATE tickets SET status = $1 WHERE id = $2 RETURNING *";
 const getTicketCount = `SELECT COUNT(*) FROM tickets`
+const getStatusCount=`SELECT
+status,
+COUNT(*) AS total_tickets
+FROM
+tickets
+GROUP BY
+status
+`
+
 
 module.exports = {
   getTickets,
   getTicketByid,
   addTicket,
   updateTicket,
-  getTicketCount
+  getTicketCount,
+  getStatusCount
 };
-  

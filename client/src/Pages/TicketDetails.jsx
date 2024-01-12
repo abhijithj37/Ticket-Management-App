@@ -1,9 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import NavBar from "../Components/NavBar";
 import { FiDownload } from "react-icons/fi";
 import { FaReply } from "react-icons/fa";
-
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTicketById, getTicket } from "../features/tickets/ticketsSlice";
+import UpdateStatusModal from "../Components/UpdateStatusModal";
+ 
 const TicketDetails = () => {
+  const {id}=useParams()
+  const ticket=useSelector(getTicket)
+  const dispatch=useDispatch()
+  
+  if (!ticket) {
+    return (
+        <section>
+            <h2>Ticket not found!</h2>
+        </section>
+    )
+}
+useEffect(()=>{
+dispatch(fetchTicketById({id}))
+},[])
   return (
     <>
       <NavBar />
@@ -25,26 +43,27 @@ const TicketDetails = () => {
           {/* ticket details */}
           <div className="p-4 bg-white mt-5 space-y-8 text-gray-600 flex-1 lg:flex-auto">
             <div className="flex justify-between items-center">
-              <p className="font-semibold text-lg">#12</p>
-              <button>do something</button>
+              <p className="font-semibold text-lg">#{ticket.id}</p>
+              {/* <button>do something</button> */}
+              <UpdateStatusModal currentStatus={ticket.status} ticketId={ticket.id} />
             </div>
 
             <div>
               <p className="text-sm">Ticket Title : </p>
               <p className="mt-2 font-medium">
-                Their is new subscription on your website
+                {ticket.subject}
               </p>
             </div>
             {/* ........ */}
             <div className="flex justify-between">
               <div className="w-[50%]">
                 <p className="text-sm">Reported By : </p>
-                <p className="font-medium">Abhijith J</p>
+                <p className="font-medium">{ticket.requested_by}</p>
               </div>
               <div className="w-[50%] flex  flex-row-reverse lg:flex-row text-right lg:text-left">
                 <span>
                   <p className="text-sm">Assigned To : </p>
-                  <p className="font-medium">Muhammed S</p>
+                  <p className="font-medium">{ticket.assignee}</p>
                 </span>
               </div>
             </div>
@@ -54,12 +73,12 @@ const TicketDetails = () => {
             <div className="flex justify-between">
               <div className="w-[50%]">
                 <p className="text-sm">Created On : </p>
-                <p className="font-medium">20-10-2023</p>
+                <p className="font-medium">{new Date(ticket.created_date).toLocaleDateString('en-GB')}</p>
               </div>
               <div className="w-[50%] flex flex-row-reverse lg:flex-row text-right lg:text-left">
                 <span>
-                  <p className="text-sm">Updated On : </p>
-                  <p className="font-medium">20-10-2023</p>
+                  <p className="text-sm">Due On : </p>
+                  <p className="font-medium">{new Date(ticket.due_date).toLocaleDateString('en-GB')}</p>
                 </span>
               </div>
             </div>
@@ -69,15 +88,15 @@ const TicketDetails = () => {
             <div className="flex justify-between">
               <div className="w-[50%]">
                 <p className="text-sm">Status : </p>
-                <div className="px-5 py-1 border text-sm font-medium w-24">
-                  Open
+                <div className="px-5 py-1 border text-xs font-medium w-24">
+                  {ticket.status}
                 </div>
               </div>
               <div className="w-[50%] flex flex-row-reverse lg:flex-row text-right lg:text-left">
                 <div>
                   <p className="text-sm">Priority : </p>
-                  <div className="px-5 py-1 border text-sm font-medium w-24">
-                    Medium
+                  <div className="px-5 py-1 border text-xs font-medium w-24">
+                    {ticket.priority}
                   </div>
                 </div>
               </div>
@@ -146,7 +165,7 @@ const TicketDetails = () => {
           {/* Attachments */}
         </div>
         {/* Discussions */}
-<div className='p-4 bg-white mt-5 lg:w-[73%]'>
+<div className='p-4 bg-white mt-5 lg:w-[75%]'>
   <div className="flex items-center justify-between">
   <p className='text-gray-800 font-medium'>Discussions(68)</p>
    <select name="" id="" className="outline-none border p-1 text-gray-400">

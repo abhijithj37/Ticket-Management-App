@@ -2,20 +2,22 @@ import NavBar from "../Components/NavBar";
 import { BsTags } from "react-icons/bs";
 import { FiClock } from "react-icons/fi";
 import { FiCheckCircle } from "react-icons/fi";
-import { RiDeleteBinLine } from "react-icons/ri";
 import { SlOptions } from "react-icons/sl";
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 import AddTickets from "../Components/AddTickets";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  fetchStatusCount,
   fetchTickets,
   fetchTicketsCount,
+  getTicketStatus,
   getTicketsCount,
   selectAll,
 } from "../features/tickets/ticketsSlice";
 import useLocalStorage from "../hooks/useLocalStorage";
 import ReactPaginate from 'react-paginate'
-import { Toaster } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { TbTicketOff } from "react-icons/tb";
 
 
 const Home = () => {
@@ -24,23 +26,26 @@ const Home = () => {
   const ticketsCount = useSelector(getTicketsCount);
   const pageCount = Math.ceil(ticketsCount / limit);
   const tickets = useSelector(selectAll);
+  const ticketStatus=useSelector(getTicketStatus)
   const dispatch = useDispatch();
+  const navigate=useNavigate()
 
   useEffect(() => {
     dispatch(fetchTickets({ page, limit }));
   },[page,limit,ticketsCount]);
-
   useEffect(()=>{
   dispatch(fetchTicketsCount())
   },[])
-
+  useEffect(()=>{
+  dispatch(fetchStatusCount())
+  },[ticketsCount])
+  
   const handlePageClick = (e) => {
   setPage(e.selected + 1);
   };
 
   return (
     <>
-    <Toaster richColors position="top-center"/>
       <NavBar />
       <main className="px-4 py-4 bg-gray-100 min-h-screen md:px-6">
         {/* ...... */}
@@ -63,7 +68,7 @@ const Home = () => {
               <BsTags size={20} />
             </span>
             <span className="flex flex-col gap-1 text-right">
-              <h1 className="font-medium text-lg">3947</h1>
+              <h1 className="font-medium text-lg">{ticketsCount}</h1>
               <p className="text-sm text-slate-400">Total Tickets</p>
             </span>
           </div>
@@ -74,7 +79,7 @@ const Home = () => {
               <FiClock size={20} />
             </span>
             <span className="flex flex-col gap-1 text-right">
-              <h1 className="font-medium text-lg">3947</h1>
+              <h1 className="font-medium text-lg">{ticketStatus['In Progress']??0}</h1>
               <p className="text-sm text-slate-400">Pending Tickets</p>
             </span>
           </div>
@@ -85,19 +90,19 @@ const Home = () => {
               <FiCheckCircle size={20} />
             </span>
             <span className="flex flex-col gap-1 text-right">
-              <h1 className="font-medium text-lg">3947</h1>
-              <p className="text-sm text-slate-400">Total Tickets</p>
+              <h1 className="font-medium text-lg">{ticketStatus['Open']??0}</h1>
+              <p className="text-sm text-slate-400">Open Tickets</p>
             </span>
           </div>
           {/* grid--- */}
           {/* grid */}
           <div className="flex items center justify-between px-5 py-5 bg-white rounded-sm">
             <span className="bg-red-500 text-white flex w-14 rounded-full justify-center  h-14 items-center">
-              <RiDeleteBinLine size={20} />
+              <TbTicketOff size={20} />
             </span>
             <span className="flex flex-col gap-1 text-right">
-              <h1 className="font-medium text-lg">3947</h1>
-              <p className="text-sm text-slate-400">Total Tickets</p>
+              <h1 className="font-medium text-lg">{ticketStatus['Closed']??0}</h1>
+              <p className="text-sm text-slate-400">Closed Tickets</p>
             </span>
           </div>
           {/* grid--- */}
@@ -189,7 +194,7 @@ const Home = () => {
                         </span>
                       </td>
                       <td class=" text-xs text-gray-700 whitespace-nowrap border border-collapse">
-                        <span class="px-1.5 py-0.5 text-xs font-medium  tracking-wide text-white bg-emerald-500 rounded-md ">
+                        <span class={`px-1.5 py-0.5 text-xs font-medium  tracking-wide text-white ${e.status==='Open'?'bg-emerald-500':e.status==='Closed'?'bg-slate-500':'bg-blue-500'}  rounded-md`}>
                           {e.status}
                         </span>
                       </td>
@@ -200,7 +205,8 @@ const Home = () => {
                         {new Date(e.due_date).toLocaleDateString('en-GB')}
                       </td>
                       <td class=" text-sm tracking-wider text-gray-700 whitespace-nowrap border border-collapse">
-                        <div className="text-lg font-medium cursor-pointer hover:text-xs">...</div>
+                        <div className="text-lg font-medium cursor-pointer hover:text-sm" onClick={()=>navigate(`/${e.id}`)}>...</div>
+ 
                       </td>
                     </tr>
                   );
@@ -233,14 +239,14 @@ const Home = () => {
                           #{e.id}
                         </a>
                       </div>
-                      <div class="text-gray-500">{e.created_date}</div>
+                      <div class="text-gray-500">{new Date(e.created_date).toLocaleDateString('en-GB')}</div>
                       <div>
-                        <span class="px-1.5 py-0.5 text-xs font-medium tracking-wide text-white bg-emerald-500 rounded-md ">
+                        <span class={`px-1.5 py-0.5 text-xs font-medium tracking-wide text-white ${e.status==='Open'?'bg-emerald-500':e.status==='Closed'?'bg-slate-500':'bg-blue-500'} rounded-md `}>
                           {e.status}
                         </span>
                       </div>
                     </div>
-                    <SlOptions />
+                    <SlOptions className="text-gray-700 cursor-pointer hover:size-5" onClick={()=>navigate(`/${e.id}`)} />
                   </div>
                   <div class="text-sm text-gray-700 font-medium">
                     {e.subject}
@@ -253,12 +259,12 @@ const Home = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <p className="text-sm font-medium text-gray-700">
-                      {e.due_date}<span className="text-gray-400">(Due)</span>{" "}
+                      {new Date(e.due_date).toLocaleDateString('en-GB')}<span className="text-gray-400">(Due)</span>{" "}
                     </p>
                     <p className="text-sm text-gray-400">
                       {" "}
                       Priority:{" "}
-                      <span class="px-1.5 py-0.5 text-xs font-medium tracking-wide text-orange-500 bg-yellow-200 rounded-md bg-opacity-50">
+                      <span class={`${e.priority==='Medium'?'text-orange-500 bg-yellow-200':e.priority==='Low'?'text-gray-500 bg-gray-200':'text-red-500 bg-red-200'} px-1.5 py-0.5 text-xs font-medium tracking-wide rounded-md bg-opacity-50`}>
                         {e.priority}
                       </span>
                     </p>

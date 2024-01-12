@@ -58,6 +58,13 @@ module.exports = {
       res.status(200).json(result.rows[0].count);
     });
   },
+  getStatusCount:(req,res,next)=>{
+    console.log('calling status count');
+    client.query(queries.getStatusCount,(err,result)=>{
+      if(err)return next(err)
+      res.status(200).json(result.rows)
+    })
+  }
 
 
   
